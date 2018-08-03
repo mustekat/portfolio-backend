@@ -1,0 +1,21 @@
+{
+  "name": "portfolio-backend",
+  "description": "Simple backend for managing images on a portfolio website",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "author": "mustekat",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mustekat/portfolio-backend/"
+  },
+  "engines": {
+    "node": "8.x.x"
+  },
+  "scripts": {
+    "deploy": "gcloud app deploy",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
