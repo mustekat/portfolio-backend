@@ -86,13 +86,13 @@ const addImage = (req, res) => {
     return;
   }
 
-  const fileName = `${Date.now()}-${file.originalname}`;
+  const fileName = file.originalname;
   // Create a new blob in the bucket and upload the file data.
   const blob = bucket.file(filePath(fileName));
   const blobStream = blob.createWriteStream({
     resumable: false,
     metadata: {
-      ...body,
+      metadata: { ...body },
       contentType: file.mimetype
     }
   });
@@ -116,6 +116,58 @@ const addImage = (req, res) => {
   blobStream.end(file.buffer);
 };
 
+const getImageMetadata = (req, res) => {
+  const fileName = req.params.imageId;
+  if (!fileName) {
+    res.status(400).send('No file name given.');
+    return;
+  }
+
+  bucket
+    .file(filePath(fileName))
+    .getMetadata()
+    .then(results => {
+      const metadata = results[0];
+      res.status(200).json({
+        result: {
+          fileName,
+          updated: metadata.updated,
+          ...metadata.metadata
+        }
+      });
+    })
+    .catch(err => {
+      console.error('ERROR (getImageMetadata):', err);
+      res.status(500).send('Error: get metadata failed');
+    });
+};
+
+const getImages = (req, res) => {
+  bucket
+    .getFiles()
+    .then(results => {
+      const files = results[0];
+      const fileNames = files.reduce((list, file) => {
+        const { name } = file;
+        const pathStart = filePath('');
+        if (name.startsWith(pathStart) && name !== pathStart) {
+          const fileName = name.slice(pathStart.length);
+          if (fileName !== imageListName) {
+            list.push(fileName);
+          }
+        }
+        return list;
+      }, []);
+      res.status(200).json({
+        result: fileNames
+      });
+    })
+    .catch(err => {
+      console.error('ERROR (getImages):', err);
+      res.status(500).send('Error: get images failed');
+    });
+};
+
 const deleteImage = (req, res) => {
   const fileName = req.params.imageId;
   if (!fileName) {
@@ -135,13 +187,16 @@ const deleteImage = (req, res) => {
     });
 };
 
-router.route('/images').post(auth, multer.single('file'), addImage);
-
+// Routes
+router
+  .route('/images')
+  .get(auth, getImages)
+  .post(auth, multer.single('file'), addImage);
+router.route('/images/:imageId/data').get(getImageMetadata);
 router.route('/images/:imageId').delete(auth, deleteImage);
-
 router
   .route('/image-list')
-  .get(getList) // Public endpoint
+  .get(getList)
   .post(auth, updateList);
 
 app.use('/api/v1', router);
