@@ -1,49 +1,148 @@
 const express = require('express');
+const basicAuth = require('express-basic-auth');
 const request = require('request');
+const bodyParser = require('body-parser');
+const Multer = require('multer');
+const Storage = require('@google-cloud/storage');
 
 const router = express.Router();
 const app = express();
+app.use(bodyParser.json());
 
-const APP_URL = process.env.APP_URL;
+// Instantiate a storage client
+const storage = Storage();
+
+const BUCKET_URL = process.env.GCLOUD_STORAGE_BUCKET;
 const FOLDER_NAME = process.env.FOLDER_NAME;
 
-const storageUrl = `https://storage.googleapis.com/${APP_URL}/${FOLDER_NAME}`;
-const imageListUrl = `${storageUrl}/image-list.txt`;
-const imageUrl = fileName => `${storageUrl}/${fileName}`;
+const storageUrl = `https://storage.googleapis.com/${BUCKET_URL}/`;
+const imageListName = 'image-list.txt';
+const filePath = fileName => `${FOLDER_NAME}/${fileName}`;
+const fileUrl = fileName => `${storageUrl}/${filePath(fileName)}`;
 
-const getList = (req, res, next) => {
-  request(imageListUrl, (error, response, body) => {
+// Handling files
+const multer = Multer({
+  storage: Multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024 // no larger than 5mb
+  }
+});
+const bucket = storage.bucket(BUCKET_URL);
+
+// Basic auth
+const USER = process.env.USER;
+const PASSWORD = process.env.PASSWORD;
+const auth = basicAuth({
+  users: { [USER]: PASSWORD },
+  challenge: true,
+  realm: BUCKET_URL
+});
+
+const getList = (req, res) => {
+  request(fileUrl(imageListName), (error, response, body) => {
     const statusCode = response && response.statusCode;
     if (statusCode === 200) {
       const imageList = body.split('\n');
       res.status(200).json({ result: imageList });
-    } else {
-      console.error('Error in getList', statusCode, error, body);
-      res.status(statusCode || 500).json({ error, body });
+      return;
     }
+    console.error('ERROR (getList)', statusCode, error, body);
+    res.status(statusCode || 500).json({ error, body });
   });
 };
 
-const updateList = (req, res, next) => {
-  res.status(200).send('Dummy response for update list');
+const updateList = (req, res) => {
+  const list = req.body || [];
+
+  // Create buffer
+  const buf = Buffer.from(list.join('\n'));
+
+  // Create a new blob in the bucket and upload the file data.
+  const blob = bucket.file(filePath(imageListName));
+  const blobStream = blob.createWriteStream({
+    resumable: false,
+    metadata: {
+      contentType: 'text/plain'
+    }
+  });
+
+  blobStream.on('error', err => {
+    console.error('ERROR (updateList):', err);
+    res.status(500).send('Error: image list update failed');
+  });
+
+  blobStream.on('finish', () => {
+    // Return the file name
+    res.status(200).send(`Saved image list ${list}`);
+  });
+
+  blobStream.end(buf);
 };
 
-const addImage = (req, res, next) => {
-  res.status(200).send('Dummy response for add image');
+const addImage = (req, res) => {
+  const { file, body } = req;
+  if (!file) {
+    res.status(400).send('No file uploaded.');
+    return;
+  }
+
+  const fileName = `${Date.now()}-${file.originalname}`;
+  // Create a new blob in the bucket and upload the file data.
+  const blob = bucket.file(filePath(fileName));
+  const blobStream = blob.createWriteStream({
+    resumable: false,
+    metadata: {
+      ...body,
+      contentType: file.mimetype
+    }
+  });
+
+  blobStream.on('error', err => {
+    console.error('ERROR (addImage):', err);
+    res.status(500).send('Error: file upload failed');
+  });
+
+  blobStream.on('finish', () => {
+    // Return the file name
+    res
+      .status(200)
+      .send(
+        `Uploaded ${file.originalname} (${file.mimetype}) to ${filePath(
+          fileName
+        )}`
+      );
+  });
+
+  blobStream.end(file.buffer);
 };
 
-const deleteImage = (req, res, next, id) => {
-  res.status(200).send(`Dummy response for delete ${id}`);
+const deleteImage = (req, res) => {
+  const fileName = req.params.imageId;
+  if (!fileName) {
+    res.status(400).send('No file name given.');
+    return;
+  }
+
+  bucket
+    .file(filePath(fileName))
+    .delete()
+    .then(() => {
+      res.status(200).send(`Deleted ${filePath(fileName)}`);
+    })
+    .catch(err => {
+      console.error('ERROR (deleteImage):', err);
+      res.status(500).send('Error: file delete failed');
+    });
 };
 
-router.route('/images').post(addImage);
+router.route('/images').post(auth, multer.single('file'), addImage);
 
-router.route('/images/:imageId').delete(deleteImage);
+router.route('/images/:imageId').delete(auth, deleteImage);
 
 router
   .route('/image-list')
-  .get(getList)
-  .post(updateList);
+  .get(getList) // Public endpoint
+  .post(auth, updateList);
 
 app.use('/api/v1', router);
 
