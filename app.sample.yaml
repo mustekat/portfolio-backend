@@ -1,0 +1,9 @@
+runtime: nodejs8
+skip_files:
+- ^(.*/)?/node_modules/(.*/)?$
+- ^(.*/)?app\.sample\.yaml$
+env_variables:
+  # the url for your app running in google app engine, <id>.appspot.com
+  APP_URL: ""
+  # Name of the folder to be used for public files
+  FOLDER_NAME: "public"

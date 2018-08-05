@@ -11,11 +11,15 @@
   "engines": {
     "node": "8.x.x"
   },
+  "dependencies": {
+    "express": "^4.16.3",
+    "request": "^2.87.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.3"
+  },
   "scripts": {
     "deploy": "gcloud app deploy",
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "express": "^4.16.3"
+    "start": "nodemon ./app.js"
   }
 }
