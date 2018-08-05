@@ -7,7 +7,7 @@ const storage = Storage();
 const BUCKET_URL = process.env.GCLOUD_STORAGE_BUCKET;
 const FOLDER_NAME = process.env.FOLDER_NAME;
 
-const storageUrl = `https://storage.googleapis.com/${BUCKET_URL}/`;
+const storageUrl = `https://storage.googleapis.com/${BUCKET_URL}`;
 const imageListName = 'image-list.txt';
 const filePath = fileName => `${FOLDER_NAME}/${fileName}`;
 const fileUrl = fileName => `${storageUrl}/${filePath(fileName)}`;
@@ -15,6 +15,7 @@ const fileUrl = fileName => `${storageUrl}/${filePath(fileName)}`;
 const bucket = storage.bucket(BUCKET_URL);
 
 const getList = (req, res) => {
+  console.log(fileUrl(imageListName))
   request(fileUrl(imageListName), (error, response, body) => {
     const statusCode = response && response.statusCode;
     if (statusCode === 200) {

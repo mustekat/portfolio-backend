@@ -13,7 +13,7 @@ Copy `.env.sample`into `.env` and fill with your values used in development. Sim
 
 ## Development
 
-    yarn start
+    yarn start-dev
 
 Go to [localhost:8080](localhost:8080) if you are using the default port.
 

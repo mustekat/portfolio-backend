@@ -1,9 +1,4 @@
 runtime: nodejs8
-skip_files:
-- ^(.*/)?/node_modules/(.*)?$
-- ^(.*/)?app\.sample\.yaml$
-- ^(.*/)?\.env$
-- ^(.*/)?\.env\.sample$
 env_variables:
   # The url for your google stoage bucket, <id>.appspot.com
   GCLOUD_STORAGE_BUCKET: YOUR_BUCKET_NAME

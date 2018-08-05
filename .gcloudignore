@@ -1,0 +1,8 @@
+.gcloudignore
+.git
+.gitignore
+#!include:.gitignore
+ 
+.env.sample
+app.sample.yaml
+README.md
