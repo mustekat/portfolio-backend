@@ -1,6 +1,8 @@
 # portfolio-backend
 
-This is a simple backend designed to run in Google App Engine for a portfolio website.
+This is a simple backend designed to run in Google App Engine for a portfolio website. Uses Node.js and express.
+
+Uses Google Cloud storage public bucket provided with the App Engine for storing files and their metadata. Files are stored in a different folder depending on the environment. In addition to the image files, a file (`image-list.txt`) is used for storing the information of which images and in which order to show in the public portfolio site. Includes also methods for a password-protected admin site for managing the images.
 
 ## Start developing
 Install [Google Cloud Tools](https://cloud.google.com/sdk/docs/).
@@ -15,7 +17,7 @@ Copy `.env.sample`into `.env` and fill with your values used in development. Sim
 
     yarn start-dev
 
-Go to [localhost:8080](localhost:8080) if you are using the default port.
+The api is served from [localhost:8080/api/v1/](localhost:8080/api/v1) if you are using the default settings.
 
 ## Deploying to App Engine
 
