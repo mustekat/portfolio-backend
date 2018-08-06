@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Multer = require('multer');
+const cors = require('cors');
 const {
   getImages,
   addImage,
@@ -23,16 +24,27 @@ const multer = Multer({
   }
 });
 
+// CORS for public get urls
+const CORS_WHITELIST = process.env.CORS_WHITELIST;
+const corsWhitelist = (CORS_WHITELIST && CORS_WHITELIST.split(',')) || [];
+const corsOptions = {
+  origin: (origin, callback) => {
+    const allowCors = corsWhitelist.indexOf(origin) !== -1;
+    callback(null, allowCors);
+  },
+  methods: 'GET'
+};
+
 // Routes
 router
   .route('/images')
   .get(auth, getImages)
   .post(auth, multer.single('file'), addImage);
-router.route('/images/:imageId/data').get(getImageMetadata);
+router.route('/images/:imageId/data').get(cors(corsOptions), getImageMetadata);
 router.route('/images/:imageId').delete(auth, deleteImage);
 router
   .route('/image-list')
-  .get(getList)
+  .get(cors(corsOptions), getList)
   .post(auth, updateList);
 
 app.use('/api/v1', router);

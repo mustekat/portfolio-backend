@@ -8,7 +8,8 @@ const APP_NAME = process.env.GCLOUD_STORAGE_BUCKET;
 const auth = basicAuth({
   users: { [USER]: PASSWORD },
   challenge: true,
-  realm: APP_NAME
+  realm: APP_NAME,
+  unauthorizedResponse: () => 'Unauthorized'
 });
 
 module.exports = {

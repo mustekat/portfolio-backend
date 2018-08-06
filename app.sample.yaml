@@ -7,3 +7,5 @@ env_variables:
   # Credentials for auth
   USER: ""
   PASSWORD: ""
+  # Allowed addresses, comma-sparated
+  CORS_WHITELIST: ""
