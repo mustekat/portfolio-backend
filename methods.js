@@ -15,7 +15,6 @@ const fileUrl = fileName => `${storageUrl}/${filePath(fileName)}`;
 const bucket = storage.bucket(BUCKET_URL);
 
 const getList = (req, res) => {
-  console.log(fileUrl(imageListName))
   request(fileUrl(imageListName), (error, response, body) => {
     const statusCode = response && response.statusCode;
     if (statusCode === 200) {
@@ -45,7 +44,7 @@ const updateList = (req, res) => {
 
   blobStream.on('error', err => {
     console.error('ERROR (updateList):', err);
-    res.status(500).send('Error: image list update failed');
+    res.status(err.code || 500).send('Error: image list update failed');
   });
 
   blobStream.on('finish', () => {
@@ -76,7 +75,7 @@ const addImage = (req, res) => {
 
   blobStream.on('error', err => {
     console.error('ERROR (addImage):', err);
-    res.status(500).send('Error: file upload failed');
+    res.status(err.code || 500).send('Error: file upload failed');
   });
 
   blobStream.on('finish', () => {
@@ -115,7 +114,7 @@ const getImageMetadata = (req, res) => {
     })
     .catch(err => {
       console.error('ERROR (getImageMetadata):', err);
-      res.status(500).send('Error: get metadata failed');
+      res.status(err.code || 500).send('Error: get metadata failed');
     });
 };
 
@@ -141,7 +140,7 @@ const getImages = (req, res) => {
     })
     .catch(err => {
       console.error('ERROR (getImages):', err);
-      res.status(500).send('Error: get images failed');
+      res.status(err.code || 500).send('Error: get images failed');
     });
 };
 
@@ -160,7 +159,7 @@ const deleteImage = (req, res) => {
     })
     .catch(err => {
       console.error('ERROR (deleteImage):', err);
-      res.status(500).send('Error: file delete failed');
+      res.status(err.code || 500).send('Error: file delete failed');
     });
 };
 
