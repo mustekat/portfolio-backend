@@ -1,0 +1,51 @@
+doctype html
+html(lang='en')
+  head
+    title Static Files
+    meta(charset='utf-8')
+    link(rel='stylesheet', href='/static/main.css')
+    script.
+      var imageList = '#{list}';
+      var apiPath = '#{apiPath}'
+  body
+    h1 Admin panel
+    form(method='POST', action=apiPath+'/image-list', enctype='multipart/form-data')
+      h3 Images to display (image-list)
+      input(name='list' type='hidden' id='list-input')
+      div(class='item' id='example-item')
+        div
+          button(type='button' onclick='moveUp(this)') &#x21E7;
+          button(type='button' onclick='moveDown(this)') &#x21E9;
+        div(class='name')
+        div
+          button(type='button' onclick='remove(this)') Remove
+      div(class='list' id='image-list')
+      button(type='submit') Save changes
+    br
+    p Changes made to the list -- including adding items -- are not saved until "Save changes" is pressed.
+    p To delete an image, first remove it from the images to display and save.
+    h3 Other images
+    div(class='list')
+      - var otherImages = images.filter(i => list.indexOf(i) === -1)
+      each item in otherImages
+        div(class='item')
+          div(class='name')= item
+          div(class='buttons')
+            button(type='button' onclick='addToList("' + item + '", this)') Add to list
+            button(type='button' onclick='deleteImage("' + item + '", this)') Delete
+    form(method='POST', action=apiPath+'/images', enctype='multipart/form-data')
+      h3 Add an image
+      label 
+        div Image file
+        input(type='file', name='file')
+      label 
+        div Title
+        input(type='text', name='title')
+      label 
+        div Description
+        input(type='text' name='description')
+      label 
+        div Date
+        input(type='date' name='date')
+      button(type='submit') Upload
+    script(src='/static/main.js')

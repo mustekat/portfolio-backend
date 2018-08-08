@@ -14,7 +14,18 @@ const fileUrl = fileName => `${storageUrl}/${filePath(fileName)}`;
 
 const bucket = storage.bucket(BUCKET_URL);
 
-const getList = (req, res) => {
+const getList = (req, res, next) => {
+  request(fileUrl(imageListName), (error, response, body) => {
+    const statusCode = response && response.statusCode;
+    if (statusCode === 200) {
+      res.locals.list = body.split('\n');
+      return next();
+    }
+    console.error('ERROR (getList)', statusCode, error, body);
+  });
+};
+
+const respondList = (req, res) => {
   request(fileUrl(imageListName), (error, response, body) => {
     const statusCode = response && response.statusCode;
     if (statusCode === 200) {
@@ -28,7 +39,8 @@ const getList = (req, res) => {
 };
 
 const updateList = (req, res) => {
-  const list = req.body || [];
+  const { list: listStr } = req.body;
+  const list = listStr.split(',');
 
   // Create buffer
   const buf = Buffer.from(list.join('\n'));
@@ -38,7 +50,8 @@ const updateList = (req, res) => {
   const blobStream = blob.createWriteStream({
     resumable: false,
     metadata: {
-      contentType: 'text/plain'
+      contentType: 'text/plain',
+      cacheControl: 'no-cache, no-store, must-revalidate'
     }
   });
 
@@ -69,7 +82,8 @@ const addImage = (req, res) => {
     resumable: false,
     metadata: {
       metadata: { ...body },
-      contentType: file.mimetype
+      contentType: file.mimetype,
+      cacheControl: 'public, max-age=1800'
     }
   });
 
@@ -93,7 +107,7 @@ const addImage = (req, res) => {
 };
 
 const getImageMetadata = (req, res) => {
-  const fileName = req.params.imageId;
+  const { fileName } = req.params;
   if (!fileName) {
     res.status(400).send('No file name given.');
     return;
@@ -118,7 +132,7 @@ const getImageMetadata = (req, res) => {
     });
 };
 
-const getImages = (req, res) => {
+const getImages = (req, res, next) => {
   bucket
     .getFiles()
     .then(results => {
@@ -134,18 +148,16 @@ const getImages = (req, res) => {
         }
         return list;
       }, []);
-      res.status(200).json({
-        result: fileNames
-      });
+      res.locals.images = fileNames;
+      return next();
     })
     .catch(err => {
       console.error('ERROR (getImages):', err);
-      res.status(err.code || 500).send('Error: get images failed');
     });
 };
 
 const deleteImage = (req, res) => {
-  const fileName = req.params.imageId;
+  const { fileName } = req.params;
   if (!fileName) {
     res.status(400).send('No file name given.');
     return;
@@ -167,6 +179,7 @@ module.exports = {
   getImages,
   addImage,
   getList,
+  respondList,
   updateList,
   deleteImage,
   getImageMetadata

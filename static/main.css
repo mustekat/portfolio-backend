@@ -1,0 +1,81 @@
+body {
+  padding: 10px 30px;
+  margin: 0;
+  font-size: 16px;
+}
+
+button,
+input {
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+label {
+  display: block;
+  margin: 10px 0;
+}
+
+label div {
+  margin-bottom: 4px;
+}
+
+input {
+  display: block;
+  line-height: 1.5;
+  box-sizing: border-box;
+  border: 1px solid #d8d8d8;
+  padding: 2px 5px;
+}
+
+input[type='text'] {
+  width: 100%;
+}
+
+input[type='file'] {
+  padding: 5px;
+  line-height: 1;
+}
+
+h3 {
+  margin: 30px 0 15px;
+}
+
+.list {
+  padding: 0 10px;
+  margin: 10px 0 20px;
+}
+
+#example-item {
+  display: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+.item .name {
+  flex: 0 1 300px;
+  margin-right: 20px;
+}
+
+.buttons {
+  text-align: right;
+  flex: 0 1 180px;
+}
+
+button {
+  white-space: nowrap;
+  margin: 2px 5px;
+  padding: 2px 5px 3px;
+  background: white;
+  border: 1px solid;
+  border-color: #d8d8d8 #d1d1d1 #bababa;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #f1f1f1;
+}

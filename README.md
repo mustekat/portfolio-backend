@@ -22,3 +22,10 @@ The api is served from [localhost:8080/api/v1/](localhost:8080/api/v1) if you ar
 ## Deploying to App Engine
 
     yarn deploy
+
+
+## Versions
+
+v0.1 is just an api with endpoints.
+
+v0.2 introduces a GUI at `'/'` for using the admin endpoints

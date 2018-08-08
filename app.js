@@ -8,15 +8,19 @@ const {
   getImageMetadata,
   deleteImage,
   getList,
-  updateList
+  updateList,
+  respondList
 } = require('./methods');
 const { auth } = require('./auth');
+
+const apiPath = '/api/v1';
 
 const router = express.Router();
 const app = express();
 app.use(bodyParser.json());
+app.set('view engine', 'pug');
 
-// Handling files
+// Handling files and multipart/form-data
 const multer = Multer({
   storage: Multer.memoryStorage(),
   limits: {
@@ -36,18 +40,21 @@ const corsOptions = {
 };
 
 // Routes
-router
-  .route('/images')
-  .get(auth, getImages)
-  .post(auth, multer.single('file'), addImage);
-router.route('/images/:imageId/data').get(cors(corsOptions), getImageMetadata);
-router.route('/images/:imageId').delete(auth, deleteImage);
+router.route('/images').post(auth, multer.single('file'), addImage);
+router.route('/images/:fileName/data').get(cors(corsOptions), getImageMetadata);
+router.route('/images/:fileName').delete(auth, deleteImage);
 router
   .route('/image-list')
-  .get(cors(corsOptions), getList)
-  .post(auth, updateList);
+  .get(cors(corsOptions), respondList)
+  .post(auth, multer.fields([]), updateList);
 
-app.use('/api/v1', router);
+app.use(apiPath, router);
+
+// Display a page with forms for using the admin endpoints
+app.use('/static', express.static('static'));
+app.use('/', auth, getList, getImages, (req, res) =>
+  res.render('index.pug', { apiPath })
+);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
