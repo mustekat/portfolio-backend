@@ -18,7 +18,7 @@ const getList = (req, res, next) => {
   request(fileUrl(imageListName), (error, response, body) => {
     const statusCode = response && response.statusCode;
     if (statusCode === 200) {
-      res.locals.list = body.split('\n');
+      res.locals.list = body !== '' ? body.split('\n') : [];
       return next();
     }
     console.error('ERROR (getList)', statusCode, error, body);
@@ -29,7 +29,7 @@ const respondList = (req, res) => {
   request(fileUrl(imageListName), (error, response, body) => {
     const statusCode = response && response.statusCode;
     if (statusCode === 200) {
-      const imageList = body.split('\n');
+      const imageList = body !== '' ? body.split('\n') : [];
       res.status(200).json({ result: imageList });
       return;
     }

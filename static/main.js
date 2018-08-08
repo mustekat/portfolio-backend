@@ -13,7 +13,7 @@ const deleteImage = (fileName, clickedButton) => {
   }
 };
 
-let currentList = imageList.split(',');
+let currentList = imageList !== '' ? imageList.split(',') : [];
 // The position of item name element in an image-list item element
 const nameIndex = 1;
 
