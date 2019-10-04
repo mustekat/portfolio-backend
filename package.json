@@ -9,7 +9,7 @@
     "url": "https://github.com/mustekat/portfolio-backend/"
   },
   "engines": {
-    "node": "8.x.x"
+    "node": "10.15.1"
   },
   "dependencies": {
     "@google-cloud/storage": "^1.7.0",
