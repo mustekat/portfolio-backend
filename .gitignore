@@ -7,8 +7,6 @@ coverage/
 dump.rdb
 logs/
 .idea/
-yarn.lock
-package-lock.json
 
 .DS_Store
 .env
