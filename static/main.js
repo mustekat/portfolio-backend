@@ -21,8 +21,14 @@ const updateList = () => {
   const container = document.getElementById('image-list');
   const exampleItem = document.getElementById('example-item');
   const listInput = document.getElementById('list-input');
+  const noItems = document.getElementById('no-items');
   listInput.value = currentList.join(',');
   container.innerHTML = '';
+  if (noItems.hidden && currentList.length === 0) {
+    noItems.hidden = false;
+  } else if (!noItems.hidden && currentList.length > 0) {
+    noItems.hidden = true;
+  }
   for (var i = 0; i < currentList.length; i++) {
     const current = currentList[i];
     const newItem = exampleItem.cloneNode(true);

@@ -1,17 +1,18 @@
 doctype html
 html(lang='en')
   head
-    title Static Files
+    title Portfolio Admin
     meta(charset='utf-8')
     link(rel='stylesheet', href='/static/main.css')
     script.
       var imageList = '#{list}';
       var apiPath = '#{apiPath}'
   body
-    h1 Admin panel
+    h1 Portfolio Admin panel
     form(method='POST', action=apiPath+'/image-list', enctype='multipart/form-data')
       h3 Images to display (image-list)
       input(name='list' type='hidden' id='list-input')
+      div(id='no-items') No items
       div(class='item' id='example-item')
         div
           button(type='button' onclick='moveUp(this)') &#x21E7;
